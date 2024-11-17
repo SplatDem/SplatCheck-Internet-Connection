@@ -29,7 +29,7 @@ Options:
 
 To build:
 ```
-git clone https://github.com/SplatDem/SplatChecInternetConnection
+git clone https://github.com/SplatDem/SplatChec-Internet-Connection
 cd SplatCheckInternetConnection
 cargo build --release
 cd target/release
