@@ -29,6 +29,14 @@ Options:
 `-d, --download` -- enable download test.
 `-s, --size` -- number of data.
 
+## Available in AUR
+```
+https://aur.archlinux.org/packages/scic
+```
+```
+yay -Sy scic
+```
+
 To build:
 ```
 git clone https://github.com/SplatDem/SplatChec-Internet-Connection
