@@ -21,11 +21,13 @@ Usage: scic [OPTIONS]
 Options:
   -t, --tests <TESTS>  
   -d, --download       
+  -s, --size <SIZE>    [default: 10]
   -h, --help           Print help
 ```
 
 `-t, --tests` -- number of tests.
 `-d, --download` -- enable download test.
+`-s, --size` -- number of data.
 
 To build:
 ```
