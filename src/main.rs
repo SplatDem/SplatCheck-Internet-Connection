@@ -7,12 +7,12 @@ use std::time::Instant;
 #[command(long_about = None)]
 struct Args {
     /// Number of tests
-    #[arg(short, long)]
+    #[arg(short, long, value_name = "NUMBER")]
     tests: Option<u8>,
 
     /// Enable/Disable download test
-    #[arg(short, long)]
-    download: bool,
+    #[arg(short, value_name = "URL", long)]
+    download: Option<String>,
 
     /// Size of data to upload
     #[arg(short, long, default_value_t = 10)]
@@ -21,10 +21,18 @@ struct Args {
 
 #[tokio::main]
 async fn main() {
-    let download_url = "https://www.speedtest.net/";
+    let args = Args::parse();
+
+    let mut download_url_string = String::new();
+
+    match args.download {
+        Some(ref url) => download_url_string = url.to_string(),
+        None => {}
+    }
+    let download_url_len = download_url_string.len();
+
     let upload_url = "https://httpbin.org/post";
 
-    let args = Args::parse();
     let mut num_tests = 5;
 
     match args.tests {
@@ -32,11 +40,12 @@ async fn main() {
         None => print!(""),
     }
 
-    if args.download {
-        let mut total_download_speed = 0.0;
+    let mut total_download_speed = 0.0;
 
+    if download_url_len != 0 {
         for i in 1..=num_tests {
-            let speed = measure_download_speed(download_url).await;
+            let value = measure_download_speed(download_url_string.clone());
+            let speed = value.await;
 
             match speed {
                 Ok(s) => {
@@ -93,7 +102,7 @@ async fn main() {
     }
 }
 
-async fn measure_download_speed(url: &str) -> Result<f64, Error> {
+async fn measure_download_speed(url: String) -> Result<f64, Error> {
     let client = Client::new();
     let start_time = Instant::now();
     let response = client.get(url).send().await?.error_for_status()?;
