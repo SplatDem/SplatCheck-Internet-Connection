@@ -6,12 +6,15 @@ use std::time::Instant;
 #[derive(Parser, Debug)]
 #[command(long_about = None)]
 struct Args {
+    /// Number of tests
     #[arg(short, long)]
     tests: Option<u8>,
 
+    /// Enable/Disable download test
     #[arg(short, long)]
     download: bool,
 
+    /// Size of data to upload
     #[arg(short, long, default_value_t = 10)]
     size: usize,
 }
