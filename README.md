@@ -19,10 +19,10 @@ You can also set parameters:
 Usage: scic [OPTIONS]
 
 Options:
-  -t, --tests <TESTS>  Number of tests
-  -d, --download       Enable/Disable download test
-  -s, --size <SIZE>    Size of data to upload [default: 10]
-  -h, --help           Print help
+  -t, --tests <NUMBER>  Number of tests
+  -d, --download <URL>  Enable/Disable download test
+  -s, --size <SIZE>     Size of data to upload [default: 10]
+  -h, --help            Print help
 ```
 
 `-t, --tests` -- number of tests.
