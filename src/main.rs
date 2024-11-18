@@ -11,6 +11,9 @@ struct Args {
 
     #[arg(short, long)]
     download: bool,
+
+    #[arg(short, long, default_value_t = 10)]
+    size: usize,
 }
 
 #[tokio::main]
@@ -53,7 +56,7 @@ async fn main() {
 
     let mut total_upload_speed = 0.0;
 
-    println!("Uploading 10 MB of data");
+    println!("Uploading {} MB of data", args.size);
     for i in 1..=num_tests {
         let speed = measure_upload_speed(upload_url).await;
 
@@ -100,8 +103,10 @@ async fn measure_download_speed(url: &str) -> Result<f64, Error> {
 }
 
 async fn measure_upload_speed(url: &str) -> Result<f64, Error> {
+    let args = Args::parse();
+
     let client = Client::new();
-    let data = vec![0; 10 * 1024 * 1024]; // 10 МБ данных для загрузки
+    let data = vec![0u8; args.size * 1024 * 1024]; // 10 МБ данных для загрузки
 
     let start_time = Instant::now();
     let _response = client
