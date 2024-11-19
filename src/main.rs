@@ -17,11 +17,25 @@ struct Args {
     /// Size of data to upload
     #[arg(short, long, default_value_t = 10)]
     size: usize,
+
+    /// Check the avaibility of the connection
+    #[arg(short, long)]
+    check: bool,
 }
 
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
+
+    if args.check {
+        if is_connected().await {
+            println!("Connection is enable");
+            return;
+        } else {
+            println!("Connection is disable");
+            return;
+        }
+    }
 
     let mut download_url_string = String::new();
 
@@ -102,6 +116,15 @@ async fn main() {
     }
 }
 
+async fn is_connected() -> bool {
+    let responce = reqwest::get("https://www.google.com").await;
+
+    match responce {
+        Ok(res) => res.status().is_success(),
+        Err(_) => false,
+    }
+}
+
 async fn measure_download_speed(url: String) -> Result<f64, Error> {
     let client = Client::new();
     let start_time = Instant::now();
@@ -118,7 +141,7 @@ async fn measure_upload_speed(url: &str) -> Result<f64, Error> {
     let args = Args::parse();
 
     let client = Client::new();
-    let data = vec![0u8; args.size * 1024 * 1024]; // 10 МБ данных для загрузки
+    let data = vec![0u8; args.size * 1024 * 1024];
 
     let start_time = Instant::now();
     let _response = client
