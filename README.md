@@ -22,12 +22,9 @@ Options:
   -t, --tests <NUMBER>  Number of tests
   -d, --download <URL>  Enable/Disable download test
   -s, --size <SIZE>     Size of data to upload [default: 10]
+  -c, --check           Check the avaibility of the connection
   -h, --help            Print help
 ```
-
-`-t, --tests` -- number of tests.
-`-d, --download` -- enable download test.
-`-s, --size` -- number of data.
 
 ## Available in AUR
 ```
