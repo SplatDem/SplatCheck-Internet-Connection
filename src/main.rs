@@ -1,38 +1,18 @@
+mod args;
+mod inet_utils;
+
 use clap::Parser;
-use reqwest::{Client, Error};
-
-use std::time::Instant;
-
-#[derive(Parser, Debug)]
-#[command(long_about = None)]
-struct Args {
-    /// Number of tests
-    #[arg(short, long, value_name = "NUMBER")]
-    tests: Option<u8>,
-
-    /// Enable/Disable download test
-    #[arg(short, value_name = "URL", long)]
-    download: Option<String>,
-
-    /// Size of data to upload
-    #[arg(short, long, default_value_t = 10)]
-    size: usize,
-
-    /// Check the avaibility of the connection
-    #[arg(short, long)]
-    check: bool,
-}
 
 #[tokio::main]
 async fn main() {
-    let args = Args::parse();
+    let args = args::Args::parse();
 
     if args.check {
-        if is_connected().await {
-            println!("Connection is enable");
+        if inet_utils::is_connected().await {
+            println!("Connection can be established!");
             return;
         } else {
-            println!("Connection is disable");
+            println!("Connection can't be established!");
             return;
         }
     }
@@ -58,7 +38,7 @@ async fn main() {
 
     if download_url_len != 0 {
         for i in 1..=num_tests {
-            let value = measure_download_speed(download_url_string.clone());
+            let value = inet_utils::measure_download_speed(download_url_string.clone());
             let speed = value.await;
 
             match speed {
@@ -84,7 +64,7 @@ async fn main() {
 
     println!("Uploading {} MB of data", args.size);
     for i in 1..=num_tests {
-        let speed = measure_upload_speed(upload_url).await;
+        let speed = inet_utils::measure_upload_speed(upload_url).await;
 
         match speed {
             Ok(s) => {
@@ -110,49 +90,10 @@ async fn main() {
         _ if average_upload_speed <= 2.0 && average_upload_speed > 1.0 => {
             println!("\nNot Bad, But Can be Better")
         }
-        _ if average_upload_speed > 2.0 && average_upload_speed <= 3.0 => println!("\nIt Will Do"),
+        _ if average_upload_speed > 2.0 && average_upload_speed <= 3.0 => {
+            println!("\nIt Will Do")
+        }
         _ if average_upload_speed > 3.0 => println!("\nGood"),
         () => todo!(),
     }
-}
-
-async fn is_connected() -> bool {
-    let responce = reqwest::get("https://www.google.com").await;
-
-    match responce {
-        Ok(res) => res.status().is_success(),
-        Err(_) => false,
-    }
-}
-
-async fn measure_download_speed(url: String) -> Result<f64, Error> {
-    let client = Client::new();
-    let start_time = Instant::now();
-    let response = client.get(url).send().await?.error_for_status()?;
-
-    let content_length = response.content_length().unwrap_or(0);
-    let duration = start_time.elapsed();
-
-    let speed_mbps = (content_length as f64 / 1024.0 / 1024.0) / duration.as_secs_f64();
-    Ok(speed_mbps.clone())
-}
-
-async fn measure_upload_speed(url: &str) -> Result<f64, Error> {
-    let args = Args::parse();
-
-    let client = Client::new();
-    let data = vec![0u8; args.size * 1024 * 1024];
-
-    let start_time = Instant::now();
-    let _response = client
-        .post(url)
-        .body(data.clone())
-        .send()
-        .await?
-        .error_for_status()?;
-
-    let duration = start_time.elapsed();
-    let speed_mbps = (data.len() as f64 / 1024.0 / 1024.0) / duration.as_secs_f64();
-
-    Ok(speed_mbps)
 }
