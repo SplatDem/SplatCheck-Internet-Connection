@@ -1,8 +1,10 @@
 mod checkspeed;
+mod colors;
 mod connected;
 mod options;
 
 use checkspeed::{measure_download_speed, measure_upload_speed};
+use colors::*;
 use connected::is_connected;
 use options::Args;
 
@@ -14,10 +16,10 @@ async fn main() {
 
     if args.check {
         if is_connected().await {
-            println!("Connection is enable");
+            println!("Connection {}enable{}", GREEN, RESET);
             return;
         } else {
-            println!("Connection is disable");
+            println!("Connection {}disable{}", RED, RESET);
             return;
         }
     }
@@ -74,8 +76,12 @@ async fn main() {
         match speed {
             Ok(s) => {
                 total_upload_speed += s;
-                println!("Test {}: Upload speed: {:.2} MB/s", i, s);
-                if s < 2.0 {
+                if s <= 1.5 {
+                    println!("Test {}: Upload speed: {RED}{:.2} MB/s{RESET}", i, s);
+                } else {
+                    println!("Test {}: Upload speed: {GREEN}{:.2} MB/s{RESET}", i, s);
+                }
+                if s < 1.5 {
                     println!("------               ----------");
                 }
             }
@@ -89,14 +95,14 @@ async fn main() {
     println!("Avg upload speed: {:.2} MB/s", average_upload_speed);
 
     match () {
-        _ if average_upload_speed <= 1.0 => {
+        _ if average_upload_speed <= 3.0 => {
             println!("\nHolly Shit, Bro, Your Connection is Shitful")
         }
-        _ if average_upload_speed <= 2.0 && average_upload_speed > 1.0 => {
+        _ if average_upload_speed <= 5.0 && average_upload_speed > 3.0 => {
             println!("\nNot Bad, But Can be Better")
         }
-        _ if average_upload_speed > 2.0 && average_upload_speed <= 3.0 => println!("\nIt Will Do"),
-        _ if average_upload_speed > 3.0 => println!("\nGood"),
+        _ if average_upload_speed > 5.0 && average_upload_speed <= 10.0 => println!("\nIt Will Do"),
+        _ if average_upload_speed > 10.0 => println!("\nGood"),
         () => todo!(),
     }
 }
